@@ -253,7 +253,12 @@ public class Computer
     {
         return m_apiEnvironment;
     }
-    
+
+    public Terminal getTerminal()
+    {
+        return m_terminal;
+    }
+
     public void turnOn()
     {
         if( m_state == State.Off )
@@ -279,7 +284,13 @@ public class Computer
             return m_state == State.Running;
         }
     }
-    
+
+    public boolean isOff() {
+        synchronized (this) {
+            return m_state == State.Off;
+        }
+    }
+
     public void abort( boolean hard )
     {
         synchronized( this )
@@ -463,6 +474,7 @@ public class Computer
             if( s_romMount != null )
             {
                 m_fileSystem.mount( "rom", "rom", s_romMount );
+                m_apis.add( new MountAPI( m_fileSystem ) );
                 return true;
             }
             return false;
@@ -473,7 +485,13 @@ public class Computer
             return false;
         }
     }
-            
+
+    public FileSystem getFileSystem() {
+        synchronized (this) {
+            return m_fileSystem;
+        }
+    }
+
     // Redstone
 
     public int getRedstoneOutput( int side )

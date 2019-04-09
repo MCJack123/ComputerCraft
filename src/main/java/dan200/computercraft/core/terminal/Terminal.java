@@ -18,16 +18,23 @@ public class Terminal
     private int m_cursorColour;
     private int m_cursorBackgroundColour;
 
-    private int m_width;
-    private int m_height;
+    public int m_width;
+    public int m_height;
 
-    private TextBuffer m_text[];
-    private TextBuffer m_textColour[];
-    private TextBuffer m_backgroundColour[];
+    public static int highestID = 0;
+    public static int lastID = 0;
+    public int myID;
+
+    private TextBuffer[] m_text;
+    private TextBuffer[] m_textColour;
+    private TextBuffer[] m_backgroundColour;
+
+    private TextBuffer[] m_pixelColor;
 
     private final Palette m_palette;
 
     private boolean m_changed;
+    private boolean m_pixel_mode;
 
     public Terminal( int width, int height )
     {
@@ -40,11 +47,14 @@ public class Terminal
         m_text = new TextBuffer[ m_height ];
         m_textColour = new TextBuffer[ m_height ];
         m_backgroundColour = new TextBuffer[ m_height ];
+        m_pixelColor = new TextBuffer[m_height * 9];
         for( int i=0; i<m_height; ++i )
         {
             m_text[i] = new TextBuffer( ' ', m_width );
             m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
             m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+            for (int j = 0; j < 9; j++)
+                m_pixelColor[i*9+j] = new TextBuffer((char)15, m_width*6);
         }
                 
         m_cursorX = 0;
@@ -52,8 +62,11 @@ public class Terminal
         m_cursorBlink = false;
         
         m_changed = false;
+        m_pixel_mode = false;
 
         m_palette = new Palette();
+
+        myID = highestID++;
     }
 
     public void reset()
@@ -63,6 +76,7 @@ public class Terminal
         m_cursorX = 0;
         m_cursorY = 0;
         m_cursorBlink = false;
+        m_pixel_mode = false;
         clear();
         m_changed = true;
         m_palette.resetColours();
@@ -88,6 +102,7 @@ public class Terminal
         TextBuffer[] oldText = m_text;
         TextBuffer[] oldTextColour = m_textColour;
         TextBuffer[] oldBackgroundColour = m_backgroundColour;
+        TextBuffer[] oldPixelColor = m_pixelColor;
 
         m_width = width;
         m_height = height;
@@ -95,6 +110,7 @@ public class Terminal
         m_text = new TextBuffer[ m_height ];
         m_textColour = new TextBuffer[ m_height ];
         m_backgroundColour = new TextBuffer[ m_height ];
+        m_pixelColor = new TextBuffer[ m_height * 9 ];
         for( int i=0; i<m_height; ++i )
         {
             if( i >= oldHeight )
@@ -102,21 +118,29 @@ public class Terminal
                 m_text[ i ] = new TextBuffer( ' ', m_width );
                 m_textColour[ i ] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
                 m_backgroundColour[ i ] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                for (int j = 0; j < 9; j++)
+                    m_pixelColor[i*9+j] = new TextBuffer((char)15, m_width*6);
             }
             else if( m_width == oldWidth )
             {
                 m_text[ i ] = oldText[ i ];
                 m_textColour[ i ] = oldTextColour[ i ];
                 m_backgroundColour[ i ] = oldBackgroundColour[ i ];
+                for (int j = 0; j < 9; j++)
+                    m_pixelColor[i*9+j] = oldPixelColor[i];
             }
             else
             {
                 m_text[ i ] = new TextBuffer( ' ', m_width );
                 m_textColour[ i ] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
                 m_backgroundColour[ i ] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                for (int j = 0; j < 9; j++)
+                    m_pixelColor[i*9+j] = new TextBuffer((char)15, m_width*6);
                 m_text[ i ].write( oldText[ i ] );
                 m_textColour[ i ].write( oldTextColour[ i ] );
                 m_backgroundColour[ i ].write( oldBackgroundColour[ i ] );
+                for (int j = 0; j < 9; j++)
+                    m_pixelColor[i*9+j].write(oldPixelColor[i]);
             }
         }
         m_changed = true;
@@ -252,6 +276,8 @@ public class Terminal
             m_text[ y ].fill( ' ' );
             m_textColour[ y ].fill( base16.charAt( m_cursorColour ) );
             m_backgroundColour[ y ].fill( base16.charAt( m_cursorBackgroundColour ) );
+            for (int j = 0; j < 9; j++)
+                m_pixelColor[y*9+j].fill((char)15);
         }
         m_changed = true;
     }
@@ -369,5 +395,31 @@ public class Terminal
             m_palette.readFromNBT( nbttagcompound );
         }
         m_changed = true;
+    }
+
+    public void setGraphicsMode(boolean graphicsMode) {
+        System.out.println("set to " + (graphicsMode ? "true" : "false"));
+        this.m_pixel_mode = graphicsMode;
+        m_changed = true;
+        lastID = myID;
+    }
+
+    public boolean getGraphicsMode() {
+        return m_pixel_mode;
+    }
+
+    public void setPixel(int x, int y, char colour) {
+        m_pixelColor[y].setChar(x, colour);
+        m_changed = true;
+    }
+
+    public char getPixel(int x, int y) {
+        return m_pixelColor[y].charAt(x);
+    }
+
+    public TextBuffer getPixelLine(int y) {
+        if (y >= 0 && y < m_height * 9)
+            return m_pixelColor[y];
+        return null;
     }
 }

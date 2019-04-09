@@ -8,6 +8,7 @@ package dan200.computercraft.client.gui.widgets;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -403,31 +405,46 @@ public class WidgetTerminal extends Widget
                 {
                     fontRenderer.drawString( emptyLine, x, startY + 2 * m_bottomMargin + ( th - 1 ) * FixedWidthFontRenderer.FONT_HEIGHT, terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ), m_leftMargin, m_rightMargin, greyscale, palette );
                 }
+                if (terminal.myID != Terminal.lastID) System.err.println("Wrong ID!!! " + terminal.myID + " vs. " + Terminal.lastID);
+                if (terminal.getGraphicsMode()) {
+                    //mc.getTextureManager().bindTexture( background );
+                    System.out.println("pixels");
+                    ComputerCraft.log.debug("pixels");
+                    for (int line = 0; line < th * 9; ++line) {
+                        TextBuffer pixels = terminal.getPixelLine(line);
+                        for (int px = 0; px < pixels.length(); px++) {
+                            TextBuffer c = new TextBuffer("0123456789abcdef".charAt(pixels.charAt(px)), 1);
+                            System.out.println("Color: " + c.toString());
+                            fontRenderer.drawString(new TextBuffer(' ', 1), x + px, y, c, c, m_leftMargin, m_rightMargin, greyscale, palette);
+                        }
+                        y += FixedWidthFontRenderer.FONT_HEIGHT / 9;
+                    }
+                } else {
+                    // Draw lines
+                    System.out.println("Writing lines");
+                    ComputerCraft.log.debug("Writing lines");
+                    for (int line = 0; line < th; ++line) {
+                        TextBuffer text = terminal.getLine(line);
+                        TextBuffer colour = terminal.getTextColourLine(line);
+                        TextBuffer backgroundColour = terminal.getBackgroundColourLine(line);
+                        fontRenderer.drawString(text, x, y, colour, backgroundColour, m_leftMargin, m_rightMargin, greyscale, palette);
+                        y += FixedWidthFontRenderer.FONT_HEIGHT;
+                    }
 
-                // Draw lines
-                for( int line = 0; line < th; ++line )
-                {
-                    TextBuffer text = terminal.getLine( line );
-                    TextBuffer colour = terminal.getTextColourLine( line );
-                    TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
-                    fontRenderer.drawString( text, x, y, colour, backgroundColour, m_leftMargin, m_rightMargin, greyscale, palette );
-                    y += FixedWidthFontRenderer.FONT_HEIGHT;
-                }
+                    if (tblink && tx >= 0 && ty >= 0 && tx < tw && ty < th) {
+                        TextBuffer cursor = new TextBuffer('_', 1);
+                        TextBuffer cursorColour = new TextBuffer("0123456789abcdef".charAt(terminal.getTextColour()), 1);
 
-                if( tblink && tx >= 0 && ty >= 0 && tx < tw && ty < th )
-                {
-                    TextBuffer cursor = new TextBuffer( '_', 1 );
-                    TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
-
-                    fontRenderer.drawString(
-                            cursor,
-                            x + FixedWidthFontRenderer.FONT_WIDTH * tx,
-                            startY + m_topMargin + FixedWidthFontRenderer.FONT_HEIGHT * ty,
-                            cursorColour, null,
-                            0, 0,
-                            greyscale,
-                            palette
-                    );
+                        fontRenderer.drawString(
+                                cursor,
+                                x + FixedWidthFontRenderer.FONT_WIDTH * tx,
+                                startY + m_topMargin + FixedWidthFontRenderer.FONT_HEIGHT * ty,
+                                cursorColour, null,
+                                0, 0,
+                                greyscale,
+                                palette
+                        );
+                    }
                 }
             } else
             {

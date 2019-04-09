@@ -24,6 +24,7 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 
 import javax.annotation.Nonnull;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -152,16 +153,9 @@ public class LuaJLuaMachine implements ILuaMachine
             try
             {
                 InputStreamReader isr;
-                try
-                {
-                    isr = new InputStreamReader( bios, "UTF-8" );
-                }
-                catch( UnsupportedEncodingException e )
-                {
-                    isr = new InputStreamReader( bios );
-                }
+                isr = new InputStreamReader( bios, StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader( isr );
-                StringBuilder fileText = new StringBuilder( "" );
+                StringBuilder fileText = new StringBuilder();
                 String line = reader.readLine();
                 while( line != null ) {
                     fileText.append( line );
@@ -252,6 +246,9 @@ public class LuaJLuaMachine implements ILuaMachine
         }
         catch( LuaError e )
         {
+            m_computer.getTerminal().reset();
+            m_computer.getTerminal().setTextColour(14);
+            m_computer.getTerminal().write(e.getMessage());
             ((LuaThread)m_mainRoutine).abandon();
             m_mainRoutine = null;
         }

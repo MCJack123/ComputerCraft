@@ -84,7 +84,7 @@ public class EncodedInputHandle extends HandleGeneric
                 checkOpen();
                 try
                 {
-                    StringBuilder result = new StringBuilder( "" );
+                    StringBuilder result = new StringBuilder();
                     String line = m_reader.readLine();
                     while( line != null )
                     {

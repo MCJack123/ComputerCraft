@@ -20,6 +20,7 @@ import dan200.computercraft.core.apis.handles.EncodedInputHandle;
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -86,8 +87,7 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
     private Map<String, String> m_responseHeaders;
     private String m_errorMessage;
 
-    public HTTPRequest( String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary ) throws HTTPRequestException
-    {
+    public HTTPRequest( String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary ) {
         // Parse the URL
         m_urlString = urlString;
         m_url = url;
@@ -155,14 +155,7 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
             {
                 OutputStream os = connection.getOutputStream();
                 OutputStreamWriter osw;
-                try
-                {
-                    osw = new OutputStreamWriter( os, "UTF-8" );
-                }
-                catch( UnsupportedEncodingException e )
-                {
-                    osw = new OutputStreamWriter( os );
-                }
+                osw = new OutputStreamWriter( os, StandardCharsets.UTF_8);
                 BufferedWriter writer = new BufferedWriter( osw );
                 writer.write( m_postText, 0, m_postText.length() );
                 writer.close();

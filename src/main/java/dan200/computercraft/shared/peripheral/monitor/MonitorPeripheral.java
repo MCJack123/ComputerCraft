@@ -65,7 +65,11 @@ public class MonitorPeripheral implements IPeripheral
             "setPaletteColour",
             "setPaletteColor",
             "getPaletteColour",
-            "getPaletteColor"
+            "getPaletteColor",
+                "setGraphicsMode",
+                "getGraphicsMode",
+                "setPixel",
+                "getPixel"
         };
     }
 
@@ -249,8 +253,66 @@ public class MonitorPeripheral implements IPeripheral
                 }
                 return null;
             }
+            case 24:
+            {
+                // setGraphicsMode
+                Terminal m_terminal = m_monitor.getTerminal().getTerminal();
+                m_terminal.clear();
+                m_terminal.setGraphicsMode(getBoolean(args, 0));
+                m_terminal.setCursorPos(1, 1);
+                return null;
+            }
+            case 25:
+            {
+                // getGraphicsMode
+
+                return new Object[] { m_monitor.getTerminal().getTerminal().getGraphicsMode() };
+            }
+            case 26:
+            {
+                // setPixel
+                Terminal m_terminal = m_monitor.getTerminal().getTerminal();
+                int colour = getInt( args, 2 );
+                if( colour <= 0 )
+                {
+                    throw new LuaException( "Colour out of range" );
+                }
+                colour = getHighestBit( colour ) - 1;
+                if( colour < 0 || colour > 15 )
+                {
+                    throw new LuaException( "Colour out of range" );
+                }
+                int x = getInt(args, 0);
+                int y = getInt(args, 1);
+                if (x >= m_terminal.m_width * 6 || y >= m_terminal.m_height * 9 || x < 0 || y < 0)
+                    throw new LuaException("Position " + x + ", " + y + " out of bounds");
+                m_terminal.setPixel(x, y, (char)colour);
+                return null;
+            }
+            case 27:
+            {
+                // getPixel
+                return encodeColour(m_monitor.getTerminal().getTerminal().getPixel(getInt(args, 0), getInt(args, 1)));
+            }
         }
         return null;
+    }
+
+    private static int getHighestBit( int group )
+    {
+        int bit = 0;
+        while( group > 0 )
+        {
+            group >>= 1;
+            bit++;
+        }
+        return bit;
+    }
+
+    private static Object[] encodeColour(int colour) {
+        return new Object[] {
+                1 << colour
+        };
     }
 
     @Override

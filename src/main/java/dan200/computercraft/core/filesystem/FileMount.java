@@ -81,7 +81,7 @@ public class FileMount implements IWritableMount
         }
     }
     
-    private File m_rootPath;
+    public File m_rootPath;
     private long m_capacity;
     private long m_usedSpace;
     
@@ -339,8 +339,7 @@ public class FileMount implements IWritableMount
     }
     
     @Override
-    public long getRemainingSpace() throws IOException
-    {
+    public long getRemainingSpace() {
         return Math.max( m_capacity - m_usedSpace, 0 );
     }
     

@@ -8,6 +8,7 @@ local function wrap( _sFunction )
 	end
 end
 
+local mainTerm = term
 local term = {}
 
 term.redirect = function( target )
@@ -41,6 +42,25 @@ term.native = function()
     -- the current terminal when your program starts up. It is far better to use term.current()
     return native
 end
+
+mainTerm.defaultFont = {}
+mainTerm.currentFont = {}
+mainTerm.loadFontFile = function()
+    if fs.exists("rom/fonts/term_font.ccfnt") then
+        local font_file = fs.open("rom/fonts/term_font.ccfnt", "r")
+        if font_file ~= nil then
+            --os.debug("Got font")
+            local contents = font_file.readAll()
+            --os.debug(contents)
+            mainTerm.defaultFont = textutils.unserialize(contents)
+            font_file.close()
+            if mainTerm.defaultFont == nil then error("Font file is in incorrect format") end
+        else error("Could not open font file") end
+    else error("Could not find font file") end
+    mainTerm.currentFont = mainTerm.defaultFont
+end
+
+term.redirect(native)
 
 for k,v in pairs( native ) do
 	if type( k ) == "string" and type( v ) == "function" then
