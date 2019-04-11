@@ -946,6 +946,8 @@ if bAPIError then
     term.setCursorPos( 1,1 )
 end
 
+term.native().loadFontFile()
+
 -- Set default settings
 settings.set( "shell.allow_startup", true )
 settings.set( "shell.allow_disk_startup", (commands == nil) )

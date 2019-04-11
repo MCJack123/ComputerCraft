@@ -89,7 +89,7 @@ public class FileMount implements IWritableMount
     {
         m_rootPath = rootPath;
         m_capacity = capacity + MINIMUM_FILE_SIZE;
-        m_usedSpace = created() ? measureUsedSpace( m_rootPath ) : MINIMUM_FILE_SIZE;
+        m_usedSpace = created() ? measureUsedSpace( m_rootPath, 0 ) : MINIMUM_FILE_SIZE;
     }
 
     // IMount implementation
@@ -365,9 +365,9 @@ public class FileMount implements IWritableMount
         }
     }
     
-    private long measureUsedSpace( File file )
+    private long measureUsedSpace( File file, int layers )
     {
-        if( !file.exists() )
+        if( !file.exists() || layers > 5)
         {
             return 0;
         }
@@ -377,7 +377,7 @@ public class FileMount implements IWritableMount
             String[] contents = file.list();
             for( String content : contents )
             {
-                size += measureUsedSpace( new File( file, content ) );
+                size += measureUsedSpace( new File( file, content ), layers + 1 );
             }
             return size;
         }

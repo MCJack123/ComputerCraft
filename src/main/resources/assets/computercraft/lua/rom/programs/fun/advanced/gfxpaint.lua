@@ -9,16 +9,14 @@ paintutils.drawFilledBox(302, 0, 305, 3, c)
 while true do
     local ev, ch, x, y = os.pullEvent()
     if ev == "mouse_click" or ev == "mouse_drag" then
-        if y < 4 then
-            if x < 64 then c = bit.blshift(1, math.floor(x / 4)) end
+        if y <= 4 then
+            if x <= 64 and ev == "mouse_click" then c = bit.blshift(1, math.floor(x / 4)) end
             paintutils.drawFilledBox(302, 0, 305, 3, c)
         else
-            term.setPixel(x, y, c)
+            term.setPixel(x - 1, y - 1, c)
         end
     elseif ev == "char" and ch == "q" then break end
 end
 term.setGraphicsMode(false)
 term.setBackgroundColor(colors.black)
 term.setTextColor(colors.white)
-term.clear()
-term.setCursorPos(1, 1)

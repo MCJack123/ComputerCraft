@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.Palette;
 import org.apache.commons.lang3.ArrayUtils;
 import org.luaj.vm2.Lua;
@@ -22,12 +23,14 @@ public class TermAPI implements ILuaAPI
 {
     private final Terminal m_terminal;
     private final IComputerEnvironment m_environment;
-
+    private final IAPIEnvironment m_apienv;
+    public static IAPIEnvironment lastSelf = null;
 
     public TermAPI( IAPIEnvironment _environment )
     {
         m_terminal = _environment.getTerminal();
         m_environment = _environment.getComputerEnvironment();
+        m_apienv = _environment;
     }
     
     @Override
@@ -313,6 +316,7 @@ public class TermAPI implements ILuaAPI
                     m_terminal.setGraphicsMode(arg);
                     if (m_terminal.getGraphicsMode() != arg) throw new LuaException("Failed to set graphics mode!");
                     m_terminal.setCursorPos(1, 1);
+                    lastSelf = m_apienv;
                 }
                 return null;
             }

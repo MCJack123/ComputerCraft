@@ -1,5 +1,6 @@
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -78,10 +79,7 @@ public class MountAPI implements ILuaAPI {
                     IWritableMount mount;
                     try {
                         f = new File((String)arguments[1]);
-                        mount = new FileMount(f, 100000000);
-                        //String s1 = (String)arguments[0];
-                        //String s2 = (String)arguments[1];
-                        //System.out.printf("%s %s\n", s1, s2);
+                        mount = new FileMount(f, 1000000000);
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                         throw new LuaException("Error while creating mount");

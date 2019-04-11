@@ -21,10 +21,6 @@ public class Terminal
     public int m_width;
     public int m_height;
 
-    public static int highestID = 0;
-    public static int lastID = 0;
-    public int myID;
-
     private TextBuffer[] m_text;
     private TextBuffer[] m_textColour;
     private TextBuffer[] m_backgroundColour;
@@ -65,8 +61,6 @@ public class Terminal
         m_pixel_mode = false;
 
         m_palette = new Palette();
-
-        myID = highestID++;
     }
 
     public void reset()
@@ -349,6 +343,7 @@ public class Terminal
         nbttagcompound.setInteger( "term_cursorX", m_cursorX );
         nbttagcompound.setInteger( "term_cursorY", m_cursorY );
         nbttagcompound.setBoolean( "term_cursorBlink", m_cursorBlink );
+        nbttagcompound.setBoolean( "term_graphicsMode", m_pixel_mode );
         nbttagcompound.setInteger( "term_textColour", m_cursorColour );
         nbttagcompound.setInteger( "term_bgColour", m_cursorBackgroundColour );
         for( int n=0; n<m_height; ++n )
@@ -356,6 +351,9 @@ public class Terminal
             nbttagcompound.setString( "term_text_" + n, m_text[n].toString() );
             nbttagcompound.setString( "term_textColour_" + n, m_textColour[n].toString() );
             nbttagcompound.setString( "term_textBgColour_" + n, m_backgroundColour[ n ].toString() );
+            for (int m = 0; m < 9; m++) {
+                nbttagcompound.setString( "term_pixelColour_" + (n*9+m), m_pixelColor[ n*9+m ].toString() );
+            }
         }
         if(m_palette != null)
         {
@@ -369,6 +367,7 @@ public class Terminal
         m_cursorX = nbttagcompound.getInteger( "term_cursorX" );
         m_cursorY = nbttagcompound.getInteger( "term_cursorY" );
         m_cursorBlink = nbttagcompound.getBoolean( "term_cursorBlink" );
+        m_pixel_mode = nbttagcompound.getBoolean( "term_graphicsMode" );
         m_cursorColour = nbttagcompound.getInteger( "term_textColour" );
         m_cursorBackgroundColour = nbttagcompound.getInteger( "term_bgColour" );
 
@@ -389,6 +388,13 @@ public class Terminal
             {
                 m_backgroundColour[n].write( nbttagcompound.getString( "term_textBgColour_" + n ) );
             }
+            for (int m = 0; m < 9; m++) {
+                m_pixelColor[n*9+m].fill( (char)0 );
+                if( nbttagcompound.hasKey( "term_pixelColour_" + (n*9+m) ) )
+                {
+                    m_pixelColor[n*9+m].write( nbttagcompound.getString( "term_pixelColour_" + (n*9+m) ) );
+                }
+            }
         }
         if (m_palette != null)
         {
@@ -398,10 +404,8 @@ public class Terminal
     }
 
     public void setGraphicsMode(boolean graphicsMode) {
-        System.out.println("set to " + (graphicsMode ? "true" : "false"));
         this.m_pixel_mode = graphicsMode;
         m_changed = true;
-        lastID = myID;
     }
 
     public boolean getGraphicsMode() {
