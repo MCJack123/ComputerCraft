@@ -1,16 +1,17 @@
 [
     {
         "modid" : "computercraft",
-        "name" : "ComputerCraft",
+        "name" : "ComputerCraft+CraftOS-PC",
         "version" : "${version}",
         "mcversion" : "${mcversion}",
         "url" : "http://www.computercraft.info",
-        "credits" : "Created by Daniel Ratcliffe (@DanTwoHundred)",
+        "credits" : "Created by Daniel Ratcliffe (@DanTwoHundred) and JackMacWindows",
         "authors" : [
             "Daniel Ratcliffe",
-            "Aaron Mills"
+            "Aaron Mills",
+            "JackMacWindows"
         ],
-        "description" : "ComputerCraft adds Computers, Programming and Robotics to Minecraft.",
+        "description" : "ComputerCraft adds Computers, Programming and Robotics to Minecraft. This version includes features from CraftOS-PC by JackMacWindows.",
         "logoFile" : "pack.png",
         "updateUrl" : "http://www.computercraft.info",
         "parent" : "",

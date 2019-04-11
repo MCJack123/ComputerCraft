@@ -23,7 +23,7 @@ plugins {
 }
 */
 
-version = "1.80pr1"
+version = "1.80+v1.2"
 group = "dan200.computercraft"
 archivesBaseName = "ComputerCraft"
 
